@@ -1,100 +1,49 @@
 Cristian Rodriguez 02240132026
-
-
-listaUsuarios = []
-
-def usarAppend():
-    nombre = input("Ingrese el nombre del nuevo usuario: ").strip()
-    listaUsuarios.append(nombre)
-    return {"estado": "ok", "mensaje": "Usuario agregado: " + nombre, "datos": []}
-
-def usarExtend():
-    nombres = input("Ingrese varios usuarios separados por coma: ")
-    nuevos = [n.strip() for n in nombres.split(",") if n.strip() != ""]
-    listaUsuarios.extend(nuevos)
-    return {"estado": "ok", "mensaje": "Se agregaron: " + str(nuevos), "datos": []}
-
-def usarInsert():
-    nombre = input("Nombre de usuario a insertar: ").strip()
-    posicion = int(input("Índice donde insertarlo: "))
-    listaUsuarios.insert(posicion, nombre)
-    return {"estado": "ok", "mensaje": "Insertado '" + nombre + "' en posición " + str(posicion), "datos": []}
-
-def usarRemove():
-    nombre = input("Nombre a eliminar: ").strip()
-    listaUsuarios.remove(nombre)
-    return {"estado": "ok", "mensaje": "Eliminado '" + nombre + "'", "datos": []}
-
-def usarPop():
-    pos = input("Índice a eliminar con pop (vacío = último): ").strip()
-    if pos == "":
-        eliminado = listaUsuarios.pop()
-    else:
-        eliminado = listaUsuarios.pop(int(pos))
-    return {"estado": "ok", "mensaje": "Eliminado: " + eliminado, "datos": []}
-
-def usarIndex():
-    nombre = input("Nombre a buscar: ").strip()
-    lugar = listaUsuarios.index(nombre)
-    return {"estado": "ok", "mensaje": "'" + nombre + "' está en posición " + str(lugar), "datos": []}
-
-def usarCount():
-    nombre = input("Nombre a contar: ").strip()
-    repeticiones = listaUsuarios.count(nombre)
-    return {"estado": "ok", "mensaje": "'" + nombre + "' aparece " + str(repeticiones) + " vez/veces", "datos": []}
-
-def usarSort():
-    listaUsuarios.sort()
-    return {"estado": "ok", "mensaje": "Lista ordenada", "datos": []}
-
-def usarReverse():
-    listaUsuarios.reverse()
-    return {"estado": "ok", "mensaje": "Lista invertida", "datos": []}
-
-def mostrarUsuarios():
-    return {"estado": "ok", "mensaje": "Usuarios actuales", "datos": listaUsuarios[:]}
+baseDatosClientes = [
+    ("C001", "Ana Pérez", "ana.perez@email.com", [("F1001", "2025-09-20", 1500.00, 3), ("F1002", "2025-09-22", 2300.00, 5)]),
+    ("C002", "Luis Gómez", "luis.gomez@email.com", [("F1003", "2025-09-21", 1200.00, 2)]),
+    ("C003", "María López", "maria.lopez@email.com", []) 
+]
 
 def entrada():
-    print("\n=== MENÚ DE USUARIOS ===")
-    print("1) Añadir un usuario")
-    print("2) Añadir varios usuarios")
-    print("3) Insertar usuario en posición")
-    print("4) Eliminar usuario por nombre")
-    print("5) Eliminar por índice")
-    print("6) Buscar posición de un usuario")
-    print("7) Contar repeticiones")
-    print("8) Ordenar de la A a la Z")
-    print("9) Invertir orden")
-    print("10) Mostrar usuarios")
+    print("\n=== MENÚ PRINCIPAL ===")
+    print("1) Crear cliente")
+    print("2) Actualizar cliente")
+    print("3) Eliminar cliente")
+    print("4) Listar clientes")
+    print("5) Buscar cliente por código")
+    print("6) Ordenar clientes por código")
+    print("7) Invertir orden de clientes")
+    print("8) Submenú de facturas")
+    print("9) Listar clientes con facturas")
     print("0) Finalizar")
     opcion = input("Seleccione una opción: ").strip()
     return opcion
 
 def procesar(opcion):
-    if opcion == "1":
-        return usarAppend()
-    elif opcion == "2":
-        return usarExtend()
-    elif opcion == "3":
-        return usarInsert()
-    elif opcion == "4":
-        return usarRemove()
-    elif opcion == "5":
-        return usarPop()
-    elif opcion == "6":
-        return usarIndex()
-    elif opcion == "7":
-        return usarCount()
-    elif opcion == "8":
-        return usarSort()
-    elif opcion == "9":
-        return usarReverse()
-    elif opcion == "10":
-        return mostrarUsuarios()
-    elif opcion == "0":
-        return {"estado": "ok", "mensaje": "finalizar", "datos": []}
-    else:
-        return {"estado": "error", "mensaje": "Opción no válida", "datos": []}
+    match opcion:
+        case "1":
+            return crearCliente()
+        case "2":
+            return actualizarCliente()
+        case "3":
+            return eliminarCliente()
+        case "4":
+            return listarClientes()
+        case "5":
+            return buscarCliente()
+        case "6":
+            return ordenarClientes()
+        case "7":
+            return invertirClientes()
+        case "8":
+            return submenuFacturas()
+        case "9":
+            return listarClientesConFacturas()
+        case "0":
+            return {"estado": "ok", "mensaje": "finalizar", "datos": []}
+        case _:
+            return {"estado": "error", "mensaje": "Opción no válida", "datos": []}
 
 def salida(resultado):
     if resultado["mensaje"] == "finalizar":
@@ -105,23 +54,210 @@ def salida(resultado):
             print(resultado["mensaje"])
         else:
             print(resultado["mensaje"])
-            if resultado["datos"] == []:
-                print("[Lista vacía]")
-            else:
-                indice = 0
-                for elemento in resultado["datos"]:
-                    print(str(indice) + ": " + elemento)
-                    indice = indice + 1
+            indice = 0
+            for fila in resultado["datos"]:
+                print(str(indice) + ": " + str(fila))
+                indice = indice + 1
     else:
         print(resultado["mensaje"])
     return True
 
+def crearCliente():
+    codigo = input("Código del cliente: ").strip()
+    nombre = input("Nombre del cliente: ").strip()
+    correo = input("Correo del cliente: ").strip()
+    facturas = []
+    baseDatosClientes.append((codigo, nombre, correo, facturas))
+    return {"estado": "ok", "mensaje": "Cliente creado: " + codigo, "datos": []}
 
-#Main
+def actualizarCliente():
+    codigo = input("Código a actualizar: ").strip()
+    indice = buscarIndiceCliente(codigo)
+    if indice == -1:
+        return {"estado": "error", "mensaje": "Cliente no encontrado", "datos": []}
+    cliente = baseDatosClientes[indice]
+    nuevoNombre = input("Nuevo nombre: ").strip()
+    nuevoCorreo = input("Nuevo correo: ").strip()
+    nuevasFacturas = cliente[3]
+    baseDatosClientes[indice] = (cliente[0], nuevoNombre, nuevoCorreo, nuevasFacturas)
+    return {"estado": "ok", "mensaje": "Cliente actualizado: " + codigo, "datos": []}
+
+def eliminarCliente():
+    codigo = input("Código a eliminar: ").strip()
+    indice = buscarIndiceCliente(codigo)
+    if indice == -1:
+        return {"estado": "error", "mensaje": "Cliente no encontrado", "datos": []}
+    eliminado = baseDatosClientes.pop(indice)
+    return {"estado": "ok", "mensaje": "Cliente eliminado: " + eliminado[0], "datos": []}
+
+def listarClientes():
+    return {"estado": "ok", "mensaje": "Clientes:", "datos": baseDatosClientes[:]}
+
+def buscarCliente():
+    codigo = input("Código a buscar: ").strip()
+    indice = buscarIndiceCliente(codigo)
+    if indice == -1:
+        return {"estado": "error", "mensaje": "Cliente no encontrado", "datos": []}
+    return {"estado": "ok", "mensaje": "Cliente encontrado:", "datos": [baseDatosClientes[indice]]}
+
+def ordenarClientes():
+    baseDatosClientes.sort()
+    return {"estado": "ok", "mensaje": "Clientes ordenados por código", "datos": []}
+
+def invertirClientes():
+    baseDatosClientes.reverse()
+    return {"estado": "ok", "mensaje": "Orden invertido de clientes", "datos": []}
+
+def listarClientesConFacturas():
+    lista = []
+    i = 0
+    for c in baseDatosClientes:
+        lista.append((c[0], c[1], c[2], "facturas: " + str(c[3])))
+        i = i + 1
+    return {"estado": "ok", "mensaje": "Clientes y sus facturas:", "datos": lista}
+
+def submenuFacturas():
+    codigo = input("Código del cliente para facturas: ").strip()
+    indice = buscarIndiceCliente(codigo)
+    if indice == -1:
+        return {"estado": "error", "mensaje": "Cliente no encontrado", "datos": []}
+    while True:
+        print("\n=== SUBMENÚ FACTURAS (" + codigo + ") ===")
+        print("1) Agregar factura")
+        print("2) Agregar varias facturas")
+        print("3) Insertar factura en posición")
+        print("4) Eliminar factura por valor exacto")
+        print("5) Eliminar factura por índice")
+        print("6) Buscar factura exacta")
+        print("7) Contar facturas por código")
+        print("8) Listar facturas del cliente")
+        print("9) Volver")
+        op = input("Elija opción: ").strip()
+        match op:
+            case "1":
+                r = facturaAppend(indice)
+                print(r["mensaje"])
+            case "2":
+                r = facturaExtend(indice)
+                print(r["mensaje"])
+            case "3":
+                r = facturaInsert(indice)
+                print(r["mensaje"])
+            case "4":
+                r = facturaRemove(indice)
+                print(r["mensaje"])
+            case "5":
+                r = facturaPop(indice)
+                print(r["mensaje"])
+            case "6":
+                r = facturaIndex(indice)
+                print(r["mensaje"])
+            case "7":
+                r = facturaCount(indice)
+                print(r["mensaje"])
+            case "8":
+                r = listarFacturasCliente(indice)
+                if r["datos"] == []:
+                    print(r["mensaje"])
+                else:
+                    print(r["mensaje"])
+                    k = 0
+                    for f in r["datos"]:
+                        print(str(k) + ": " + str(f))
+                        k = k + 1
+            case "9":
+                break
+            case _:
+                print("Opción no válida")
+    return {"estado": "ok", "mensaje": "Submenú cerrado para " + codigo, "datos": []}
+
+def facturaAppend(indiceCliente):
+    cli = baseDatosClientes[indiceCliente]
+    codigoFactura = input("Código de factura: ").strip()
+    fecha = input("Fecha (YYYY-MM-DD): ").strip()
+    monto = float(input("Monto total: ").strip())
+    cantidadItems = int(input("Cantidad de ítems: ").strip())
+    cli[3].append((codigoFactura, fecha, monto, cantidadItems))
+    return {"estado": "ok", "mensaje": "Factura agregada: " + codigoFactura, "datos": []}
+
+def facturaExtend(indiceCliente):
+    cli = baseDatosClientes[indiceCliente]
+    cantidad = int(input("Cantidad de facturas a agregar: ").strip())
+    nuevas = []
+    i = 0
+    while i < cantidad:
+        cf = input("Código de factura " + str(i + 1) + ": ").strip()
+        fe = input("Fecha (YYYY-MM-DD): ").strip()
+        mo = float(input("Monto total: ").strip())
+        it = int(input("Cantidad de ítems: ").strip())
+        nuevas.append((cf, fe, mo, it))
+        i = i + 1
+    cli[3].extend(nuevas)
+    return {"estado": "ok", "mensaje": "Facturas agregadas: " + str(nuevas), "datos": []}
+
+def facturaInsert(indiceCliente):
+    cli = baseDatosClientes[indiceCliente]
+    posicion = int(input("Posición donde insertar: ").strip())
+    cf = input("Código de factura: ").strip()
+    fe = input("Fecha (YYYY-MM-DD): ").strip()
+    mo = float(input("Monto total: ").strip())
+    it = int(input("Cantidad de ítems: ").strip())
+    cli[3].insert(posicion, (cf, fe, mo, it))
+    return {"estado": "ok", "mensaje": "Factura insertada en posición " + str(posicion), "datos": []}
+
+def facturaRemove(indiceCliente):
+    cli = baseDatosClientes[indiceCliente]
+    cf = input("Código exacto de la factura a eliminar: ").strip()
+    fe = input("Fecha exacta (YYYY-MM-DD): ").strip()
+    mo = float(input("Monto exacto: ").strip())
+    it = int(input("Ítems exactos: ").strip())
+    cli[3].remove((cf, fe, mo, it))
+    return {"estado": "ok", "mensaje": "Factura eliminada: " + cf, "datos": []}
+
+def facturaPop(indiceCliente):
+    cli = baseDatosClientes[indiceCliente]
+    pos = input("Índice a eliminar con pop (vacío = último): ").strip()
+    if pos == "":
+        eliminado = cli[3].pop()
+    else:
+        eliminado = cli[3].pop(int(pos))
+    return {"estado": "ok", "mensaje": "Factura eliminada: " + str(eliminado), "datos": []}
+
+def facturaIndex(indiceCliente):
+    cli = baseDatosClientes[indiceCliente]
+    cf = input("Código exacto de factura a ubicar: ").strip()
+    fe = input("Fecha exacta (YYYY-MM-DD): ").strip()
+    mo = float(input("Monto exacto: ").strip())
+    it = int(input("Ítems exactos: ").strip())
+    pos = cli[3].index((cf, fe, mo, it))
+    return {"estado": "ok", "mensaje": "Factura encontrada en posición " + str(pos), "datos": []}
+
+def facturaCount(indiceCliente):
+    cli = baseDatosClientes[indiceCliente]
+    codigoBuscar = input("Código de factura a contar: ").strip()
+    listaCodigos = []
+    for t in cli[3]:
+        listaCodigos.append(t[0])
+    cantidad = listaCodigos.count(codigoBuscar)
+    return {"estado": "ok", "mensaje": "Repeticiones del código " + codigoBuscar + ": " + str(cantidad), "datos": []}
+
+def listarFacturasCliente(indiceCliente):
+    cli = baseDatosClientes[indiceCliente]
+    return {"estado": "ok", "mensaje": "Facturas del cliente:", "datos": cli[3][:]}
+
+def buscarIndiceCliente(codigo):
+    indice = 0
+    encontrado = -1
+    for c in baseDatosClientes:
+        if c[0] == codigo:
+            encontrado = indice
+            break
+        indice = indice + 1
+    return encontrado
+
 while True:
     opcion = entrada()
     resultado = procesar(opcion)
     if not salida(resultado):
         break
-
 # extender terminal para mejor vista

@@ -264,3 +264,4 @@ while True:
     if not salida(resultado):
         break
 # extender terminal para mejor vista
+
